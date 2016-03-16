@@ -1,0 +1,477 @@
+
+<!-- saved from url=(0050)http://inst.eecs.berkeley.edu/~cs61c/su14/proj/03/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+        <link rel="stylesheet" href="http://inst.eecs.berkeley.edu/~cs61c/su14/proj/03/style.css">
+        <title>Project 3: Processor Design</title>
+      <style type="text/css"></style></head>
+      <body>
+    <h1>Project 3: Processor Design</h1>
+    <p>CS61C Summer 2014</p>
+    <p>Due <em class="e">Sunday, August 10, 2014 @ 23:59:59</em></p>
+    <p>TA: Kevin Liston</p>
+    
+    <h2>Updates</h2>
+    
+    <ol>
+      <li>Clarified that both ALU shift amounts should be determined by only the lower 
+          five bits of the second operand.</li>
+      <li>Added the interface for the instruction memory to the CPU section.</li>
+    </ol>
+    
+    <h2>Overview</h2>
+    
+    <p>In this project, you will be implementing a 2-stage pipelined processor for the 
+       Ida 2 assembly language (a language designed specifically for this project!). 
+       It is absolutely necessary to thoroughly read the <a href="http://inst.eecs.berkeley.edu/~cs61c/su14/proj/03/manual.html">Ida 2 Manual</a> to be able to 
+       complete this project, as there are substantial difference from familiar assembly 
+       languages such as MIPS.</p>
+       
+    <h2>Getting Started</h2>
+    
+    <p>You are allowed to complete this project with one partner, or by yourself. Make 
+       sure that if you work with a partner, only one of you submits the project. In the 
+       case of two submissions from you and your partner, there is no guarantee which 
+       one we will grade. Whoever submits must list their partner's login in the file 
+       <b><tt>PARTNER.txt</tt></b> before submitting (or leave it as is if you are 
+       working alone).</p>
+    
+    <p>You are not allowed to show or share your project files with any other student, 
+       friend, and such, except for your project partner. This also includes files you 
+       write specifically for testing purposes. We have various tools at our disposal to 
+       detect plagiarism.</p>
+       
+    <p>Before you begin, pull the skeleton files to your directory. Like before, you can 
+       reset the remote alias with the following commands:</p>
+       
+    <p>
+      <kbd>cd ~/work</kbd>
+      <kbd>git remote rm projects</kbd>
+      <kbd>git remote add projects git@github.com:ucberkeley-cs61c/projects_su14.git</kbd>
+    </p>
+    
+    <p>Then you can pull the skeleton files as usual:</p>
+    
+    <p>
+      <kbd>cd ~/work</kbd>
+      <kbd>git pull projects master</kbd>
+    </p>
+    
+    <p>The following project files are given:</p>
+    
+    <ol>
+      <li><b><tt>RUN.circ</tt></b> - wires all circuits together, contains all RAM 
+          memory, and runs the entire processor. Do not modify this file.</li>
+      <li><b><tt>CPU.circ</tt></b> - contains the control logic.</li>
+      <li><b><tt>REG.circ</tt></b> - contains the general purpose registers.</li>
+      <li><b><tt>ALU.circ</tt></b> - performs arithmetic operations.</li>
+      <li><b><tt>CMP.circ</tt></b> - handles comparison checking.</li>
+      <li><b><tt>NPC.circ</tt></b> - computes the next program counter.</li>
+      <li><b><tt>PIP.circ</tt></b> - contains the pipeline barrier.</li>      
+      <li><b><tt>Assemble.jar</tt></b> - assembles Ida 2 code into Logisim hex files.</li>
+      <li><b><tt>fib.ida</tt></b> - a sample test program.</li>   
+      <li><b><tt>Check.jar</tt></b> - checks your circuit files for incompatibilities.</li>
+      <li><b><tt>PARTNER.txt</tt></b> - contains your partner's login.</li>
+      <li><b><tt>proj3.marker</tt></b> - indicates that this is your project 3 submission.</li>          
+      <li><b><tt>CheckSubmission.py</tt></b> - checks your submission.</li>  
+    </ol>
+       
+       
+    <h3>Working With Logisim</h3>
+    <p>It is strongly recommended that you download 
+       <a href="http://ozark.hendrix.edu/~burch/logisim/">Logisim</a> and to run on 
+       your local machine while developing your processor to avoid overwhelming the 
+       instructional machines. The official version of Logisim we will be using for 
+       evaluation is v2.7.1.</p>
+    <p>When working with Logisim, be wary of red wires (error signals), blue wires 
+       (unknown signals), and orange wires (wires with conflicting widths). You can use 
+       the poke tool to poke wires to check their values, and trace the source of 
+       problems in the wiring. Here are some examples of things to watch out for:</p>
+       
+    <img src="./Project 3  Processor Design_files/worry0.png">
+    <img src="./Project 3  Processor Design_files/worry1.png">
+    <img src="./Project 3  Processor Design_files/worry2.png">
+    <img src="./Project 3  Processor Design_files/worry3.png">
+    <img src="./Project 3  Processor Design_files/worry4.png">
+              
+    <h2>Circuit Organization</h2>  
+    
+    
+    <h3>RUN</h3> 
+    
+    <p>At first glance, you will notice that <b><tt>RUN.circ</tt></b> is filled with blue 
+       and undefined wire signals. These errors will not go away until you have completed 
+       most of, if not all six parts of this project.</p>
+    
+    <p>It is also important to note the peculiar layout of the top-level 
+       <b><tt>RUN.circ</tt></b> circuit, which looks utterly unlike the familiar MIPS 
+       data path. Observe the following diagram. On the left, circuit A has two 
+       subcircuits: B and C. On the right, a new circuit D has three subcircuits: A, B, 
+       and C. Note that these are equivalent, though the righthand one has the added 
+       benefit that each subcircuit can be evaluated independently from the rest.</p>
+    
+    <img src="./Project 3  Processor Design_files/boxes.png">
+    
+    <p>This is exactly how the project files are laid out. The top-level circuit is 
+       <b><tt>RUN.circ</tt></b>, directly containing all other circuits, and wiring them 
+       together as necessary. The would-be top-level circuit <b><tt>CPU.circ</tt></b> is 
+       a subcircuit in the same way as A in the previous diagram is. Note that since it 
+       will not be graded in any capacity, <em class="e"><b><tt>RUN.circ</tt></b> should 
+       not be modified</em>.</p>    
+       
+    <h3>Part 1: ALU</h3>
+    <p>The ALU contains basically all arithmetic operations required to execute any 
+       instruction. The following table lists the required input and output interface of 
+       the ALU circuit.</p>
+    <table>
+      <thead><tr><td>Input</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>ALU_SOURCE_X</td><td>32</td><td>the x operand</td></tr>
+        <tr><td>ALU_SOURCE_Y</td><td>32</td><td>the y operand</td></tr>
+        <tr><td>ALU_OPERATION</td><td>4</td><td>has following meaning:<ol start="0">
+          <li>x &lt;&lt; y[4:0]</li>
+          <li>x &gt;&gt; y[4:0] (logical)</li>
+          <li>x &amp; y</li>
+          <li>x | y</li>
+          <li>x ^ y</li>
+          <li>x[15:0] | (y &lt;&lt; 16)</li>
+          <li>x * y (signed)</li>
+          <li>x / y (signed)</li>
+          <li>y - x</li>
+          <li>x + y</li>
+          <li>x + y</li>
+          <li>x + y</li>
+          <li>x + y</li>
+          <li>x + y</li>
+          <li>x + y</li>
+          <li>x + y</li>
+        </ol></td></tr>
+      </tbody>
+      <thead><tr><td>Output</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>LT</td><td>1</td><td>if x &lt; y (signed)</td></tr>
+        <tr><td>EQ</td><td>1</td><td>if x == y</td></tr>
+        <tr><td>GT</td><td>1</td><td>if x &gt; y (signed)</td></tr>
+        <tr><td>ADD_OVERFLOW</td><td>1</td><td>if the result is an addition that involved signed overflow</td></tr>
+        <tr><td>SUB_OVERFLOW</td><td>1</td><td>if the result is a subtraction that involved signed overflow</td></tr>
+        <tr><td>DIV_BY_ZERO</td><td>1</td><td>if the result is a division that involved a 0 divisor</td></tr>
+        <tr><td>ALU_RESULT</td><td>32</td><td>the result of the computation selected by ALU_OPERATION</td></tr>
+      </tbody>
+    </table>
+    
+              
+    <h3>Part 2: REG</h3>
+    <p>This is the general purpose register file, a circuit that contains every general 
+       purpose register. This file allows reading and writing to registers when needed. 
+       The following table lists the required input and output interface of the REG 
+       circuit.</p>       
+    <table>
+      <thead><tr><td>Input</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>REG_1_READ</td><td>4</td><td>the first register to read</td></tr>
+        <tr><td>REG_2_READ</td><td>4</td><td>the second register to read</td></tr>
+        <tr><td>REG_3_WRITE</td><td>4</td><td>the third register to read and/or the register to write to</td></tr>
+        <tr><td>REG_WRITE_VAL</td><td>32</td><td>the value to write into the REG_3_WRITE register</td></tr>
+        <tr><td>REG_WRITE</td><td>1</td><td>if the REG_3_WRITE register should be written to</td></tr>
+        <tr><td>CLOCK</td><td>1</td><td>the clock pulse (you may use registers in this circuit)</td></tr>
+      </tbody>
+      <thead><tr><td>Output</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>REG_1_VAL</td><td>32</td><td>the pre-update contents of the REG_1_READ register</td></tr>
+        <tr><td>REG_2_VAL</td><td>32</td><td>the pre-update contents of the REG_2_READ register</td></tr>
+        <tr><td>REG_3_VAL</td><td>32</td><td>the pre-update contents of the REG_3_WRITE register</td></tr>
+        <tr><td>R00 - R15</td><td>32</td><td>the pre-update content of each general register</td></tr>
+      </tbody>
+    </table>
+    
+    <h3>Part 3: CMP</h3>
+    <p>This unit contains the comparison result register, and logic to access and modify 
+       it. Be sure to review the way the comparison values work in the <a href="http://inst.eecs.berkeley.edu/~cs61c/su14/proj/03/manual.html">Ida 2 Manual</a>. The 
+       following table lists the required input and output interface of the CMP 
+       circuit.</p>    
+    <table>
+      <thead><tr><td>Input</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>CQ_QUERY</td><td>3</td><td>the comparison query from the current instruction</td></tr>
+        <tr><td>LT</td><td>1</td><td>a "less than" result from the ALU</td></tr>
+        <tr><td>EQ</td><td>1</td><td>an "equal to" result from the ALU</td></tr>
+        <tr><td>GT</td><td>1</td><td>a "greater than" result from the ALU</td></tr>
+        <tr><td>CR_WRITE</td><td>1</td><td>if the current instruction enables writing to the comparison register</td></tr>
+        <tr><td>CLOCK</td><td>1</td><td>the clock pulse (you may use registers in this circuit)</td></tr>
+      </tbody>
+      <thead><tr><td>Output</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>CR_VAL</td><td>3</td><td>the current value of the comparison register</td></tr>
+        <tr><td>CQ_PASSED</td><td>1</td><td>if the comparison query passes for the current instruction</td></tr>
+      </tbody>
+    </table>
+       
+    <h3>Part 4: NPC</h3>
+    <p>This module contains logic to calculate and select the next program counter. The 
+       following table lists the required input and output interface of the NPC 
+       circuit.</p> 
+    <table>
+      <thead><tr><td>Input</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>INSTRUCTION</td><td>32</td><td>the current instruction</td></tr>
+        <tr><td>CURRENT_PC</td><td>24</td><td>the current program counter value</td></tr>
+        <tr><td>JUMP_ADDRESS</td><td>24</td><td>the jump address component of the current instruction</td></tr>
+        <tr><td>CQ_PASSED</td><td>1</td><td>if the INSTRUCTION passed its comparison test</td></tr>
+      </tbody>
+      <thead><tr><td>Output</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>NEXT_PC</td><td>24</td><td>the program counter to use to fetch the next instruction</td></tr>
+      </tbody>
+    </table>
+    
+    <h3>Part 5: PIP</h3>
+    <p>This unit contains the pipelining logic of the processor. You will be implementing 
+       a 2-stage pipeline, specifically including the following stages:</p>
+    <ol>
+      <li><b>Instruction Fetch</b> - an instruction is fetched from instruction memory</li>
+      <li><b>Everything Else</b> - the instruction is decoded, executed, data memory is
+          touched, and then the results are written back</li>
+    </ol> 
+    <p>Note that data hazards are not present in this design, since every data access 
+       from any source occurs only in one pipeline stage. However, control hazards must 
+       still be accounted for. Ida 2 does not expose branch delay slots to software. 
+       In other words, the instruction immediately after a jump is not executed if the 
+       jump actually occurs. By the time you have figured out that a jump is in the 
+       execute stage, you have already accessed the instruction memory and possibly 
+       pulled out the wrong instruction. Thus you will need to kill the instruction being 
+       fetched if the instruction currently being executed is a taken jump (which is to 
+       say that jumps that are not taken should not cause a kill).</p>
+    <p>Instruction kills for this project <b>must</b> be accomplished by MUXing a nop 
+       into the instruction stream within this <b><tt>PIP.circ</tt></b>. The nop will 
+       then be sent into the execute stage (instead of using the fetched instruction). 
+       Notice that every Ida 2 instruction contains numerous possible nops (every 
+       instruction can be turned into a nop using the ?NO comparison). However, you must 
+       use an all-zero instruction (0x00000000) as the nop, for grading purposes.</p>
+    <p><b>All</b> pipelining-related circuitry is contained within this single circuit, 
+       so switching back and forth between a one and two stage design should be trivial. 
+       A project that is pipelined runs almost identically to one that is not (due to 
+       how logisim handles timing). When pipelining, you will notice two things in 
+       particular. First, there will be a startup delay cycle. Second, when performing a 
+       halting loop, the processor will jump between two different lines indefinitely. 
+       These are both correct behaviors.</p>
+    <p>The following table lists the required input and output interface of the PIP 
+       circuit.</p>
+    <table>
+      <thead><tr><td>Input</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>INSTRUCTION_IN</td><td>32</td><td>the current instruction entering the pipeline barrier</td></tr>
+        <tr><td>PC_IN</td><td>24</td><td>the current program counter associated with INSTRUCTION_IN</td></tr>
+        <tr><td>CQ_PASSED</td><td>1</td><td>if INSTRUCTION_OUT passed its comparison test</td></tr>
+        <tr><td>CLOCK</td><td>1</td><td>the clock pulse (you may use registers in this circuit)</td></tr>
+      </tbody>
+      <thead><tr><td>Output</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>INSTRUCTION_OUT</td><td>32</td><td>the instruction exiting the pipeline barrier</td></tr>
+        <tr><td>PC_OUT</td><td>24</td><td>the program counter associated with INSTRUCTION_OUT</td></tr>
+      </tbody>
+    </table>
+      
+    <h3>Part 6: CPU</h3>    
+    <p>The CPU contains all control logic. This file contains inputs and outputs shaped 
+       as if it contained every other circuit in this project. The function of these 
+       interfaces were defined previously. Essentially, the CPU contains instruction 
+       decoding and control signals. The CPU should function correctly, independent of 
+       your specific implementations of the rest of the circuits.</p>
+       
+    <p>You will notice that the CPU also contains a memory module and instruction module, 
+       both actually located in <b><tt>RUN.circ</tt></b>. You do not need to modify or 
+       complete these modules, as they are done for you. However, so that you can use 
+       them correctly, here is the interface for the instruction memory module:</p>
+       
+    <table>
+      <thead><tr><td>Input</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>JUMP_ADDRESS</td><td>24</td><td>an address to use in calculating the next program counter</td></tr>
+      </tbody>
+      <thead><tr><td>Output</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>INSTRUCTION</td><td>32</td><td>the instruction to execute</td></tr>
+        <tr><td>CURRENT_PC</td><td>24</td><td>the program counter associated with INSTRUCTION</td></tr>
+      </tbody>
+    </table>
+    
+    <p>And here is the interface for the data memory module:</p>    
+   
+    <table>
+      <thead><tr><td>Input</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>MEM_ADDR</td><td>24</td><td>an address to read from (and write to, if MEM_WRITE is enabled)</td></tr>
+        <tr><td>MEM_IN</td><td>32</td><td>the data to write to memory at MEM_ADDR, if MEM_WRITE is enabled</td></tr>
+        <tr><td>MEM_WRITE</td><td>1</td><td>if writing to memory is enabled</td></tr>
+      </tbody>
+      <thead><tr><td>Output</td><td>Bits</td><td>Purpose</td></tr></thead>
+      <tbody>
+        <tr><td>MEM_OUT</td><td>32</td><td>the contents of memory at MEM_ADDR</td></tr>
+      </tbody>
+    </table>
+          
+    
+    
+    
+    
+               
+    <h2>Testing</h2>
+    
+    <p>Testing the individual components of your processor would involve checking that 
+       for every input, the output is as is expected. While this process is tedious, you 
+       should definitely devote some time to testing in this manner. However, once you've 
+       implemented your processor entirely, you can test its correctness by writing 
+       programs to run on it! Be sure to review the <a href="http://inst.eecs.berkeley.edu/~cs61c/su14/proj/03/manual.html">Ida 2 Manual</a> thoroughly.</p>         
+       
+    <p>Once you have the assembler and a program to run, you can assemble Ida 2 files 
+       using the following command, which takes a list of files to batch assemble:</p>     
+    
+    <p><kbd>java -jar Assemble.jar fib.ida</kbd></p>
+    
+    <p>After a hex file has been assembled, it can be loaded into a logisim instruction 
+       memory RAM unit. You might also want to load a similar hex file into the data 
+       memory RAM unit, or otherwise edit the data memory directly. Before running the 
+       processor, be sure to first reset the simulation, and then load the appropriate 
+       hex files.</p>
+       
+    <img src="./Project 3  Processor Design_files/load.png">
+       
+    <p>Please note that you are expected to fully test your processor, both as a whole 
+       and as individual circuits. Doing so is the only way for you to know if you 
+       completed everything correctly. This project is graded on correctness, and while 
+       it is split into 6 isolated parts (allowing for various partial credit), these 
+       parts are not worth equal amounts, as they are not equally difficult. Partial 
+       credit within each component varies as well.</p>
+       
+       
+    <h2>Grading Considerations</h2>  
+    
+    
+    <p>This project has specifically been designed to be graded piecewise. 
+       <em class="e">Each individual file will be graded entirely in isolation of the 
+       others</em>, which means that any problems in one file will only impact the 
+       portion of the grade allocated to that one part and none of the rest. However, 
+       this also means that diverging from any of the previously listed interface 
+       requirements for any circuit component will be penalized on both sides of the 
+       interface.</p>
+    
+    <p>Because this project does not involve compiling code, there are several critical 
+       issues that might come up that should be noted. <em class="e">Note that these 
+       issues are each severe enough to receive substantial penalties during grading 
+       without consideration of intent</em>, as many of these issues are comparable to 
+       submitting uncompilable code.</p>
+    
+    <h3>Detectable Issues</h3>
+    
+    <p>You can run the following command to check all six of your circuit files.</p>
+    <p><kbd>java -jar Check.jar</kbd></p>
+    
+    <p>You can also test individual files as well.</p>
+    <p><kbd>java -jar Check.jar ALU.circ</kbd></p>    
+    
+    <p>This command will print either <b><tt>OKAY</tt></b> or <b><tt>FAIL</tt></b> for 
+       each of the required circuit files. It will also list the reason for failure, 
+       which would be one of the following critical errors:</p>
+       
+    <ol>
+      <li><em class="e">does not match the reference</em> - Involves adding, deleting, or 
+          moving any input or output pins. Doing this usually alters where these pins 
+          appear when the circuit is used. This is by far the easiest mistake to make, 
+          and it is also easy to fix. Simply obtain a fresh copy of the file and copy 
+          over everything except the input and output pins from your broken file.</li>
+      <li><em class="e">there is no "main" circuit</em> - Involves renaming the main 
+          circuits within the submitted files. They should be named "main" internally. 
+          Changing this name makes it difficult to find the intended circuit for grading, 
+          especially if there are subcircuits.</li>
+      <li><em class="e">contains a clock pin</em> - Involves using the special clock pins 
+          anywhere inside the submitted files. Thus if there is no input pin labeled as 
+          being a clock signal, then you are not supposed to use the clock in that 
+          particular circuit. Specifically, you will find it impossible to use the clock 
+          within the <b><tt>ALU.circ</tt></b>, <b><tt>NPC.circ</tt></b>, and 
+          <b><tt>CPU.circ</tt></b> files.</li>
+      <li><em class="e">contains a trigger not on the rising edge</em> - Involves 
+          updating any component on something other than the rising edge of the clock. 
+          This option often causes other difficult to locate problems.</li>
+      <li><em class="e">contains an external file</em> - Involves including external file 
+          circuits. Only the required files will be graded. Any files that attempt to 
+          link external files cannot be graded. Instead, use internal sub-circuits as 
+          appropriate.</li>
+      <li><em class="e">file does not exist</em> - Involves missing a file. Files you do 
+          not submit will get no credit.</li>
+      <li><em class="e">file is unreadable</em> - Involves a broken file format. This 
+          checking program only performs minimal assurance that your files are not 
+          broken. Opening your files in Logisim is a much safer check for this. 
+          Obviously, if Logisim cannot read your file, you will get no credit for it, 
+          even if this check does not say that it is unreadable.</li>
+    </ol>
+    
+    <p>Passing this check does not guarantee the absence of these or other errors in 
+       your project. However, <em class="e">you will definitely receive no credit for 
+       submitting a file that fails this check</em>, without any leniency.</p>
+    
+    <h3>Undetectable Issues</h3>
+    
+    <p>The following often result in an incorrect solution. While these issues are not 
+       explicitly checked for during grading, they are no less severe. Try to avoid all 
+       of these issues as they will likely (but not assuredly) break your solution.</p>    
+    <ol>
+      <li>Outputting unknowns or error signals (such as X/?/E). Your circuits should 
+          never do this for any output. If you see X/?/E symbols in outputs, or if you 
+          see red/blue/orange wires anywhere in your solutions, it might be incorrect, 
+          and is very likely to be heavily penalized!</li>
+      <li>Gating the clock. This refers to plugging a clock signal into any component's 
+          input that is not explicitly labeled as a clock input. Gating the clock can 
+          cause problems similar to updating on the falling edge of the clock.</li>
+      <li>Having any wires with unknowns, errors, or conflicting widths (these show up as 
+          X/E/? and red, blue, or orange wires). Wires such as these can cause 
+          unpredictable behavior. Again, if you see red/blue/orange wires anywhere in 
+          your solutions, it might function incorrectly!</li>
+    </ol>
+    
+    
+    
+    
+    
+    <h2>Submission</h2>  
+       
+    <p>There is a file named <b><tt>proj3.marker</tt></b> at the top of the skeleton. 
+       This file is used to locate your submission, so do not move it.</p>
+       
+    <p>Also notice there is a file named <b><tt>PARTNER.txt</tt></b>. Please list your 
+       partner's login letters in this file, being careful not to change the formatting. 
+       If you are submitting, your partner's login should be listed, and if your partner 
+       is submitting, your own login should be listed. If you have no partner, you 
+       should leave this file as it is.</p>
+    
+    <p>Only the following submitted files will be considered for grading:</p>
+    
+    <ol>
+      <li><b><tt>CPU.circ</tt></b></li>
+      <li><b><tt>REG.circ</tt></b></li>
+      <li><b><tt>ALU.circ</tt></b></li>
+      <li><b><tt>CMP.circ</tt></b></li>
+      <li><b><tt>PIP.circ</tt></b></li>
+      <li><b><tt>NPC.circ</tt></b></li>
+      <li><b><tt>PARTNER.txt</tt></b></li>
+      <li><b><tt>proj3.marker</tt></b></li> 
+    </ol>
+    
+    <p>Again, this means that none of your circuits may use other external circuits.</p>
+    
+    <p>To submit this project, tag the commit you want to submit with the tag 
+       <b><tt>proj3</tt></b>, and push to your git repo. For reference, the following 
+       commands would submit the most recent commit in your local repository:</p>
+       
+    <p>
+      <kbd>git status</kbd>
+      <kbd>git tag proj3 -f</kbd>
+      <kbd>git push --tags origin master</kbd>
+    </p>
+    
+    <p>Don't be afraid to submit multiple times. You can move your tags around, so you 
+       can choose an older commit later on if you want, or a newer commit.</p>
+    
+    <p>This project is due in its entirety on <em class="e">Sunday, August 10, 2014 @ 23:59:59</em>.</p>
+      
+  
+    
+  </body></html>

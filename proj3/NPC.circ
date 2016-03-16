@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project source="2.7.1" version="1.0">
+This file is intended to be loaded by Logisim (http://www.cburch.com/logisim/).
+<lib desc="#Wiring" name="0">
+    <tool name="Splitter">
+      <a name="facing" val="north"/>
+      <a name="incoming" val="1"/>
+      <a name="appear" val="right"/>
+    </tool>
+    <tool name="Pin">
+      <a name="facing" val="north"/>
+    </tool>
+    <tool name="Probe">
+      <a name="facing" val="north"/>
+      <a name="radix" val="10unsigned"/>
+    </tool>
+    <tool name="Tunnel">
+      <a name="label" val="cq"/>
+    </tool>
+    <tool name="Pull Resistor">
+      <a name="facing" val="north"/>
+    </tool>
+    <tool name="Clock">
+      <a name="facing" val="north"/>
+    </tool>
+    <tool name="Constant">
+      <a name="width" val="32"/>
+      <a name="value" val="0xf0000000"/>
+    </tool>
+  </lib>
+  <lib desc="#Gates" name="1"/>
+  <lib desc="#Plexers" name="2">
+    <tool name="Multiplexer">
+      <a name="width" val="24"/>
+    </tool>
+  </lib>
+  <lib desc="#Arithmetic" name="3"/>
+  <lib desc="#Memory" name="4">
+    <tool name="ROM">
+      <a name="contents">addr/data: 8 8
+0
+</a>
+    </tool>
+  </lib>
+  <lib desc="#I/O" name="5"/>
+  <lib desc="#Base" name="6">
+    <tool name="Text Tool">
+      <a name="text" val=""/>
+      <a name="font" val="SansSerif plain 12"/>
+      <a name="halign" val="center"/>
+      <a name="valign" val="base"/>
+    </tool>
+  </lib>
+  <main name="main"/>
+  <options>
+    <a name="gateUndefined" val="ignore"/>
+    <a name="simlimit" val="1000"/>
+    <a name="simrand" val="0"/>
+  </options>
+  <mappings>
+    <tool lib="6" map="Button2" name="Menu Tool"/>
+    <tool lib="6" map="Button3" name="Menu Tool"/>
+    <tool lib="6" map="Ctrl Button1" name="Menu Tool"/>
+  </mappings>
+  <toolbar>
+    <tool lib="6" name="Poke Tool"/>
+    <tool lib="6" name="Edit Tool"/>
+    <tool lib="6" name="Text Tool">
+      <a name="text" val=""/>
+      <a name="font" val="SansSerif plain 12"/>
+      <a name="halign" val="center"/>
+      <a name="valign" val="base"/>
+    </tool>
+    <sep/>
+    <tool lib="0" name="Pin">
+      <a name="facing" val="south"/>
+      <a name="tristate" val="false"/>
+    </tool>
+    <tool lib="0" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="labelloc" val="east"/>
+    </tool>
+    <tool lib="1" name="NOT Gate"/>
+    <tool lib="1" name="AND Gate"/>
+    <tool lib="1" name="OR Gate"/>
+  </toolbar>
+  <circuit name="main">
+    <a name="circuit" val="main"/>
+    <a name="clabel" val="NPC"/>
+    <a name="clabelup" val="north"/>
+    <a name="clabelfont" val="SansSerif plain 12"/>
+    <appear>
+      <rect fill="#ffea80" height="40" stroke="#808080" width="50" x="50" y="50"/>
+      <polyline fill="none" points="100,70 96,70" stroke="#000000"/>
+      <polyline fill="none" points="60,50 60,55" stroke="#000000"/>
+      <polyline fill="none" points="70,50 70,55" stroke="#000000"/>
+      <polyline fill="none" points="51,70 55,70" stroke="#000000"/>
+      <polyline fill="none" points="60,90 60,85" stroke="#000000"/>
+      <circ-port height="8" pin="240,510" width="8" x="46" y="66"/>
+      <circ-port height="8" pin="240,360" width="8" x="56" y="86"/>
+      <circ-port height="10" pin="920,360" width="10" x="95" y="65"/>
+      <circ-port height="8" pin="570,90" width="8" x="66" y="46"/>
+      <circ-port height="8" pin="240,200" width="8" x="56" y="46"/>
+      <circ-anchor facing="east" height="6" width="6" x="97" y="67"/>
+    </appear>
+    <wire from="(200,80)" to="(200,150)"/>
+    <wire from="(510,230)" to="(520,230)"/>
+    <wire from="(350,240)" to="(360,240)"/>
+    <wire from="(960,100)" to="(960,320)"/>
+    <wire from="(850,100)" to="(960,100)"/>
+    <wire from="(460,240)" to="(460,270)"/>
+    <wire from="(910,360)" to="(920,360)"/>
+    <wire from="(430,410)" to="(430,430)"/>
+    <wire from="(340,390)" to="(340,410)"/>
+    <wire from="(430,410)" to="(450,410)"/>
+    <wire from="(200,400)" to="(200,470)"/>
+    <wire from="(570,90)" to="(570,100)"/>
+    <wire from="(200,80)" to="(550,80)"/>
+    <wire from="(200,250)" to="(200,320)"/>
+    <wire from="(260,400)" to="(280,400)"/>
+    <wire from="(260,440)" to="(350,440)"/>
+    <wire from="(200,620)" to="(960,620)"/>
+    <wire from="(240,510)" to="(260,510)"/>
+    <wire from="(410,270)" to="(460,270)"/>
+    <wire from="(260,360)" to="(260,400)"/>
+    <wire from="(270,420)" to="(280,420)"/>
+    <wire from="(960,400)" to="(960,620)"/>
+    <wire from="(260,440)" to="(260,510)"/>
+    <wire from="(340,420)" to="(350,420)"/>
+    <wire from="(850,80)" to="(850,100)"/>
+    <wire from="(240,360)" to="(260,360)"/>
+    <wire from="(340,410)" to="(340,420)"/>
+    <wire from="(380,430)" to="(430,430)"/>
+    <wire from="(350,270)" to="(410,270)"/>
+    <wire from="(200,550)" to="(200,620)"/>
+    <wire from="(480,400)" to="(500,400)"/>
+    <wire from="(850,80)" to="(960,80)"/>
+    <wire from="(410,270)" to="(410,280)"/>
+    <wire from="(460,240)" to="(470,240)"/>
+    <wire from="(410,220)" to="(470,220)"/>
+    <wire from="(590,80)" to="(850,80)"/>
+    <wire from="(360,450)" to="(360,460)"/>
+    <wire from="(960,80)" to="(960,100)"/>
+    <wire from="(320,410)" to="(340,410)"/>
+    <wire from="(350,240)" to="(350,270)"/>
+    <wire from="(240,200)" to="(360,200)"/>
+    <wire from="(340,390)" to="(450,390)"/>
+    <comp lib="3" loc="(510,230)" name="Comparator">
+      <a name="width" val="32"/>
+    </comp>
+    <comp lib="0" loc="(240,200)" name="Pin">
+      <a name="width" val="32"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="INSTRUCTION"/>
+    </comp>
+    <comp lib="1" loc="(410,220)" name="AND Gate">
+      <a name="width" val="32"/>
+      <a name="inputs" val="2"/>
+    </comp>
+    <comp lib="0" loc="(910,360)" name="Tunnel">
+      <a name="facing" val="east"/>
+      <a name="width" val="24"/>
+      <a name="label" val="npc"/>
+    </comp>
+    <comp lib="0" loc="(570,100)" name="Tunnel">
+      <a name="facing" val="north"/>
+      <a name="label" val="cqp"/>
+    </comp>
+    <comp lib="0" loc="(520,230)" name="Tunnel">
+      <a name="label" val="jump"/>
+    </comp>
+    <comp lib="0" loc="(270,420)" name="Constant">
+      <a name="width" val="24"/>
+    </comp>
+    <comp lib="0" loc="(240,360)" name="Pin">
+      <a name="width" val="24"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="CURRENT_PC"/>
+    </comp>
+    <comp lib="2" loc="(380,430)" name="Multiplexer">
+      <a name="width" val="24"/>
+    </comp>
+    <comp lib="6" loc="(905,96)" name="Text">
+      <a name="text" val="NPC MODULE"/>
+      <a name="font" val="SansSerif bold 14"/>
+    </comp>
+    <comp lib="0" loc="(460,420)" name="Tunnel">
+      <a name="facing" val="north"/>
+      <a name="label" val="cqp"/>
+    </comp>
+    <comp lib="0" loc="(240,510)" name="Pin">
+      <a name="width" val="24"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="JUMP_ADDRESS"/>
+    </comp>
+    <comp lib="0" loc="(570,90)" name="Pin">
+      <a name="facing" val="south"/>
+      <a name="tristate" val="false"/>
+      <a name="label" val="CQ_PASSED"/>
+      <a name="labelloc" val="north"/>
+    </comp>
+    <comp lib="0" loc="(920,360)" name="Pin">
+      <a name="facing" val="west"/>
+      <a name="output" val="true"/>
+      <a name="width" val="24"/>
+      <a name="label" val="NEXT_PC"/>
+      <a name="labelloc" val="east"/>
+    </comp>
+    <comp lib="2" loc="(480,400)" name="Multiplexer">
+      <a name="width" val="24"/>
+    </comp>
+    <comp lib="3" loc="(320,410)" name="Adder">
+      <a name="width" val="24"/>
+    </comp>
+    <comp lib="0" loc="(360,460)" name="Tunnel">
+      <a name="facing" val="north"/>
+      <a name="label" val="jump"/>
+    </comp>
+    <comp lib="0" loc="(410,280)" name="Constant">
+      <a name="facing" val="north"/>
+      <a name="width" val="32"/>
+      <a name="value" val="0xf0000000"/>
+    </comp>
+    <comp lib="0" loc="(500,400)" name="Tunnel">
+      <a name="width" val="24"/>
+      <a name="label" val="npc"/>
+    </comp>
+  </circuit>
+</project>

@@ -1,0 +1,67 @@
+CS 61C Homework 4
+Name: Kevin Chau
+
+Login:  cs61c-gq
+
+Problem 1
+
+a: 0xD49C0000
+
+b: 2^16 = 65536
+
+c: (2^-26)*(2^-14) = 2^-40
+
+d: 0
+
+e: 31
+
+Problem 2
+
+a: Absolute addressing must occur in the linking stage because the addresses referred to in the assembly code for jumps and function calls can only be filled in after the linker combines the .o object files.
+
+b: No, every file does not need to be recompiled again because the linker only needs to relink the one recompiled file, so changes to one file do not require (slow) recompilation of the whole program.
+
+c i: symbol tables
+
+  ii: symbol table
+
+  iii: relocation table
+
+Problem 3
+
+a: 2GHz*.001s/100000instrs = 20 CPI
+
+b: A)1.1GHz/1.5CPI = 1.33*10^8 Instructions/sec
+   B)1.4GHz/1.2CPI = 1.166*10^9 Instructions/sec
+   System B is the faster system, by almost a factor of 10
+
+c i: MR_global = 2% = .02
+
+  ii: 1+.1(10+.2(100)) = 4 cycles
+
+  iii: 1+.1(100) = 11 cycles
+
+d: CPI_stall = 1.5+(.04+.4*.06)*80 = 6.62
+
+Problem 4
+
+a i: 16 - 3 - 3 = 10
+
+  ii: bytes at addresses 0xABCE, 0xABCF, 0xABD0, 0xABD1, 0xABD2, 0xABD3, 0xABD4 
+
+  iii:  All other addresses ending in 0xD or 0x5
+
+b i: 16 - 3 - 2 = 11
+
+  ii: bytes at addresses 0xABCE, 0xABCF, 0xABD0, 0xABD1, 0xABD2, 0xABD3, 0xABD4 
+
+  iii: if the other block in the set is full, then addresses axcess ending in 0x1, 0x5, 0x9, or 0xD will cause a cache miss. These are addresses congruent mod4.
+
+c i: max: 7/8
+     min: 1/2
+
+  ii: max: 7/8
+      min: 1/4
+
+  iii: max: 0
+       min: 0

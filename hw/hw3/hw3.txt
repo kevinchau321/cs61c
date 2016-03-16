@@ -1,0 +1,61 @@
+CS 61C Su14 Homework 3
+Name: Kevin Chau
+Login: cs61c-gq
+
+Problem 1
+
+a. add, addi, sub
+
+b. R[rd] refers to the destination register where the result of a MIPS instruction is stored. It also indicates that we are using an R type instruction format
+
+c. andi, ori,
+
+d. 57
+
+e. dynamic data starts at address 10008000 hex, and the heap grows upward with increasing addresses
+
+f. opcode 001110 (binary). Based on part c, xori should be zero extended for immediates.
+
+g. A kilobyte is exactly 1000 bytes, where as a kibibyte is 1024 bytes. This is because 1024 is equal to 2^10, which is the closest power of 2 to 1000 kilobytes. kilobytes are used for Disk storage, where as the kibibytes and other binary prefixes are used for memory.
+
+h. register 7 is named $a3, the last argument register. It is a volatile register so it is not saved across function calls.
+
+Problem 2
+
+Add comments to each line:
+
+fun:    addi $t0,$zero,32
+        # stores 32 in register t0; $t0=32    
+        addi $t1,$zero,0
+        # stores 0 in register t1; $t1=0            
+loop:   sub $t0,$t0,4
+        # pseudoinstruction to decrement t0 by 4; $t0-=4;          
+        srlv $t2,$a0,$t0
+        # right shift the int a0 by t0 bits; t2 = a0>>t0            
+        andi $t2,$t2,15
+        # bit mask with 15 to extract just the 4 least sig bits, since we store in bytes;           
+        slti $t3,$t2,10
+        # if t2<10, t3=1, else t3=0            
+        bne  $t3,$zero,addLess
+        # if t2<10, t3=1, so go to addLess label   
+        addi $t2,$t2,7
+        # otherwise since t2>10; t2+=7  
+addLess:addi $t2,$t2,48
+        # add 48; t2=+48    
+        add  $t4,$a1,$t1
+        # add t1 to address of a1. t4 = &a1 + t1 
+        sb   $t2,0($t4)
+        # store least sig 1 byte of t2 into the first byte of the word at t4  
+        beq  $t0,$zero,done
+        # when t0 decrements down to 0, finish the function by going to done    
+        addi $t1,$t1,1
+        # otherwise increase the byte shift count stored in t1; t1+=1    
+        j loop
+        # go back to the beginning of the loop    
+done:   sb   $zero,1($t4)
+        # zero out the second byte of the word at t4   
+        jr   $ra
+        # return  
+
+Explain what is in the array as the function returns (1-2 sentences): The array holds the ascii code for the hexadecimal representation of the 32 bit integer argument. It does this by decrementally bitshifting to extract 4-bit half bytes, but it stores the ascii characters as whole bytes so it must bitmask for 4 bits with andi 15 (0b1111). The branching takes care of the conversion to ascii code by adding the appropriate amount for digits vs letters.
+

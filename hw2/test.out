@@ -1,0 +1,49 @@
+./RouteTime airports.txt schedules.txt routes.txt
+***Parse and echo airports***
+SJC
+SFO
+SEA
+DFW
+SMF
+
+***Parse and echo schedules***
+Adding schedule for airport SJC
+SJC
+DFW 09:30 11:30 $170
+DFW 09:30 11:30 $180
+DFW 09:30 11:30 $150
+SMF 09:30 11:30 $230
+SMF 09:30 11:30 $230
+Adding schedule for airport SFO
+SFO
+SJC 15:30 17:00 $200
+SJC 15:30 17:00 $300
+SJC 15:30 17:00 $250
+SJC 15:30 17:00 $250
+SEA 15:30 17:00 $320
+SEA 15:30 17:00 $320
+DFW 15:30 17:00 $180
+DFW 15:30 17:00 $180
+DFW 15:30 17:00 $180
+Adding schedule for airport DFW
+DFW
+SJC 16:00 19:30 $150
+SFO 16:00 19:30 $180
+SFO 16:00 19:30 $180
+SFO 16:00 19:30 $180
+SMF 16:00 19:30 $400
+SMF 16:00 19:30 $400
+Adding schedule for airport SMF
+SMF
+SFO 12:00 15:30 $220
+SFO 12:00 15:30 $240
+SFO 12:00 15:30 $250
+DFW 12:00 15:30 $400
+DFW 12:00 15:30 $400
+
+***Parse and calculate route times***
+Route SIMPLE cannot be completed
+Route IMPOSSIBLE cannot be completed
+Route LONG cannot be completed
+Route TOO_LATE cannot be completed
+Route LOOP cannot be completed

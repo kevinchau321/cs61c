@@ -1,0 +1,6 @@
+critical Path: 110 ns
+Max Clock (unpiped) : 9.09 Mhz
+
+
+Critical Path (pipelined): 60ns
+Max clock: 16.6666 MHz
